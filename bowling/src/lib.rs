@@ -1,4 +1,3 @@
-
 #[derive(Debug, PartialEq, Eq)]
 pub enum Error {
     NotEnoughPinsLeft,
@@ -7,7 +6,19 @@ pub enum Error {
 
 #[derive(Default, Debug)]
 pub struct BowlingGame {
-    rolls: Vec<u16>,
+    rolls: u16,
+    frames: Vec<[u16; 2]>,
+    bonus_throw: u16,
+}
+
+trait SumFrame {
+    fn sum_frame(&self) -> u16;
+}
+
+impl SumFrame for [u16; 2] {
+    fn sum_frame(&self) -> u16 {
+        self[0] + self[1]
+    }
 }
 
 impl BowlingGame {
@@ -18,68 +29,104 @@ impl BowlingGame {
     }
 
     pub fn roll(&mut self, pins: u16) -> Result<(), Error> {
-        let current_roll = self.rolls.len();
-        let mut prev_pins = 0;
-        
-        if (current_roll%2 != 0 || current_roll>19) && self.rolls.get_mut(0).is_some() {
-            prev_pins = self.rolls[current_roll-1];
-            if prev_pins == 10 { prev_pins=0 } else {};
-        }
-        println!("Previous pins: {}", prev_pins);
+        self.rolls += 1;
 
-        if pins > 10 || (pins + prev_pins > 10) {
-            Err(Error::NotEnoughPinsLeft)
-        // most number of rolls is 10 frames, *2 rolls/frame, +1 extra frame = 21
-        } else if current_roll >= 21 {
+        // check if more than max throws, 21
+        if self.rolls > 21 {
             Err(Error::GameComplete)
+
+        // check if enough pins remaining
+        } else if !self.check_enough_pins(pins) {
+            Err(Error::NotEnoughPinsLeft)
+
+        // record roll
         } else {
-            println!("{} roll, {} pins", current_roll, pins);
-            self.rolls.push(pins);
-            if (pins == 10 && current_roll < 18) 
-                    || (current_roll == 19 && (self.rolls[current_roll-1] + pins) < 10) {
-                self.rolls.push(0);
+            // check if second throw on frame
+            if self.rolls % 2 == 0 {
+                let frame_count = self.frames.len() - 1;
+                self.frames[frame_count][1] = pins;
+
+                // If rolled open for last frame, no bonus throw, complete by increasing throw count
+                if self.rolls == 20 && self.frames[9].sum_frame() < 10 {
+                    self.rolls += 1;
+                } else {
+                };
+
+            // check if bonus throw
+            } else if self.rolls == 21 {
+                self.bonus_throw = pins;
+            } else {
+                self.frames.push([pins, 0]);
+                // If strike, complete frame by increasing throw count
+                if pins == 10 && self.rolls < 19 {
+                    self.rolls += 1
+                } else {
+                };
             }
             Ok(())
         }
     }
 
     pub fn score(&self) -> Option<u16> {
-        if self.rolls.len() < 20 {
+        if self.rolls < 21 {
             None
         } else {
             let mut score = 0;
-            let mut roll = 0;
-            for _frame in 1..=10 {
-                if self.was_strike(roll) {
-                    score += (self.rolls[roll] + self.rolls[roll+1])*2;
-                    if self.rolls[roll] == 10 && _frame < 10 { score += self.rolls[roll+2] } else {};
-                } else if self.was_spare(roll) {
-                    score += self.rolls[roll] * 2 + self.rolls[roll + 1];
+            // let mut roll = 0;
+            for _frame in 1..10 {
+                // check strike
+                if self.is_strike(_frame) {
+                    score += 10 + self.frames[_frame].sum_frame();
+
+                    // check if followed by another strike
+                    if self.is_strike(_frame + 1) && _frame < 9 {
+                        score += self.frames[_frame + 1][0];
+                    } else {
+                    };
+                // check spare
+                } else if self.is_spare(_frame) {
+                    score += 10 + self.frames[_frame][0];
+                // open frame
                 } else {
-                    score += self.rolls[roll] + self.rolls[roll + 1];
+                    score += self.frames[_frame - 1].sum_frame();
                 }
-                // println!("Frame: {}, Pins: {}, {}, Score: {}", _frame, self.rolls[roll], self.rolls[roll+1], score);
-                roll += 2;
             }
-            if self.rolls.len() > 20 { score += self.rolls[20] };
-            //dbg!(self);
+
+            // Frame 10
+            score += self.frames[9].sum_frame() + self.bonus_throw;
+
             Some(score)
         }
     }
 
-    pub fn was_spare(&self, roll_index: usize) -> bool {
-        if roll_index > 1 {
-            self.rolls[roll_index - 2] + self.rolls[roll_index - 1] == 10
-        } else {
-            false
-        }
+    pub fn is_spare(&self, frame_index: usize) -> bool {
+        self.frames[frame_index - 1].sum_frame() == 10
     }
 
-    pub fn was_strike(&self, roll_index: usize) -> bool {
-        if roll_index > 1 {
-            self.rolls[roll_index-2] == 10
+    pub fn is_strike(&self, frame_index: usize) -> bool {
+        self.frames[frame_index - 1][0] == 10
+    }
+
+    pub fn check_enough_pins(&self, pin_count: u16) -> bool {
+        // Check for frames 1-9
+        if self.frames.len() < 10 && self.rolls < 19 && self.rolls > 1 {
+            match self.rolls % 2 {
+                0 => {
+                    let this_frame = self.frames.last().unwrap_or(&[0,0]);
+                    this_frame[0] + pin_count <= 10
+                }
+                _ => pin_count <= 10,
+            }
+
         } else {
-            false
+            // Frame 10
+            // Unique because could have a third throw
+            let this_frame = self.frames.last().unwrap_or(&[0,0]);
+            if this_frame[0] == 10 {
+                this_frame[1] + pin_count <= 10 || (this_frame[1] == 10 && pin_count <= 10)
+            } else {
+                this_frame[0] + pin_count <= 10 || this_frame[0] + this_frame[1] == 10
+            }
         }
     }
 }

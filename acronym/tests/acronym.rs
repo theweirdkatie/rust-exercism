@@ -19,11 +19,13 @@ fn camelcase() {
 }
 
 #[test]
+#[ignore]
 fn punctuation() {
     assert_eq!(acronym::abbreviate("First In, First Out"), "FIFO");
 }
 
 #[test]
+#[ignore]
 fn all_caps_word() {
     assert_eq!(
         acronym::abbreviate("GNU Image Manipulation Program"),
@@ -32,6 +34,7 @@ fn all_caps_word() {
 }
 
 #[test]
+#[ignore]
 fn all_caps_word_with_punctuation() {
     assert_eq!(acronym::abbreviate("PHP: Hypertext Preprocessor"), "PHP");
 }

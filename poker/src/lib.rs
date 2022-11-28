@@ -20,12 +20,21 @@
 // C Clubs
 // D Diamonds
 
-pub struct Card {
-    rank: usize,
-    suit char,
-}
-
+use std::collections::HashMap;
 
 pub fn winning_hands<'a>(hands: &[&'a str]) -> Vec<&'a str> {
+    let mut hands_map: HashMap<u32, String> = HashMap::new();
+    let mut rank: u32 = 0;
+    for h in hands {
+        let mut cards: Vec<&str> = h.split(" ").collect::<Vec<&str>>();
+        for c in cards {
+            let num = c.chars().nth(0).unwrap_or_default().to_digit(10).unwrap_or_default();
+            let suit = c.chars().last().unwrap_or_default();
+
+            rank +=
+        }
+
+    }
+    
     unimplemented!("Out of {:?}, which hand wins?", hands)
 }

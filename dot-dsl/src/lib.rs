@@ -1,9 +1,19 @@
 pub mod graph {
-    pub struct Graph;
+    use std::collections::HashMap;
+
+    #[derive(Debug, Default, Clone)]
+
+    pub struct Graph {
+        pub nodes: Vec<char>,
+        pub edges: Vec<char>,
+        pub attrs: HashMap<String, String>,
+    }
 
     impl Graph {
         pub fn new() -> Self {
-            unimplemented!("Construct a new Graph struct.");
+            Graph{
+                ..Default::default()
+            }
         }
     }
 }

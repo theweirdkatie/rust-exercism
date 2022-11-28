@@ -2,3 +2,6 @@
 edition = "2021"
 name = "robot-simulator"
 version = "2.2.0"
+
+[dependencies]
+enum-iterator = "1.2.0"

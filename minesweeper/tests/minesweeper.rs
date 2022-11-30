@@ -28,6 +28,7 @@ fn no_rows() {
 }
 
 #[test]
+#[ignore]
 fn no_columns() {
     #[rustfmt::skip]
     run_test(&[
@@ -36,6 +37,7 @@ fn no_columns() {
 }
 
 #[test]
+#[ignore]
 fn no_mines() {
     #[rustfmt::skip]
     run_test(&[
@@ -46,6 +48,7 @@ fn no_mines() {
 }
 
 #[test]
+#[ignore]
 fn board_with_only_mines() {
     #[rustfmt::skip]
     run_test(&[
@@ -56,6 +59,7 @@ fn board_with_only_mines() {
 }
 
 #[test]
+#[ignore]
 fn mine_surrounded_by_spaces() {
     #[rustfmt::skip]
     run_test(&[

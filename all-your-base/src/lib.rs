@@ -5,6 +5,38 @@ pub enum Error {
     InvalidDigit(u32),
 }
 
+pub fn convert(number: &[u32], _from_base: u32, to_base: u32) -> Result<Vec<u32>, Error> {
+    let mut base_10_num = 0;
+    let mut result = vec![];
+
+    if _from_base <= 1 {
+        return Err(Error::InvalidInputBase);
+    } else if to_base <= 1 {
+        return Err(Error::InvalidOutputBase);
+    } else {
+        // convert to base 10
+        for (n_place, val) in number.iter().rev().enumerate().rev() {
+            if (0.._from_base).contains(val) {
+                base_10_num += val * _from_base.pow(n_place.try_into().unwrap());
+            } else {
+                return Err(Error::InvalidDigit(*val));
+            }
+        }
+
+        // convert to desired base
+        loop {
+            let remain = base_10_num % to_base;
+            result.insert(0, remain);
+            base_10_num /= to_base;
+            if base_10_num == 0 {
+                break;
+            } else {
+            };
+        }
+        Ok(result)
+    }
+}
+
 ///
 /// Convert a number between two bases.
 ///
@@ -36,11 +68,3 @@ pub enum Error {
 ///  * Never output leading 0 digits, unless the input number is 0, in which the output must be `[0]`.
 ///    However, your function must be able to process input with leading 0 digits.
 ///
-pub fn convert(number: &[u32], from_base: u32, to_base: u32) -> Result<Vec<u32>, Error> {
-    unimplemented!(
-        "Convert {:?} from base {} to base {}",
-        number,
-        from_base,
-        to_base
-    )
-}

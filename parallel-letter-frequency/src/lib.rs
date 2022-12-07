@@ -1,3 +1,13 @@
+/*
+not great
+test bench_large_parallel   ... bench:  48,938,200 ns/iter (+/- 68,820,217)
+test bench_large_sequential ... bench:     640,000 ns/iter (+/- 23,729)
+test bench_small_parallel   ... bench:   1,627,537 ns/iter (+/- 104,106)
+test bench_small_sequential ... bench:      22,393 ns/iter (+/- 819)
+test bench_tiny_parallel    ... bench:     145,720 ns/iter (+/- 18,039)
+test bench_tiny_sequential  ... bench:         128 ns/iter (+/- 15)
+ */
+
 use std::{
     collections::HashMap,
     thread,

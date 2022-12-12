@@ -76,7 +76,6 @@ impl<W: Write> Write for WriteStats<W> {
     }
 
     fn flush(&mut self) -> Result<()> {
-        self.wrapped.flush();
-        Ok(())
+        self.wrapped.flush()
     }
 }

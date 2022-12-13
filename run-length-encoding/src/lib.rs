@@ -1,3 +1,5 @@
+use std::thread::current;
+
 pub fn encode(source: &str) -> String {
     let mut encoded_string = String::new();
     let mut count: u32 = 1;
@@ -24,17 +26,36 @@ pub fn encode(source: &str) -> String {
 }
 
 pub fn decode(source: &str) -> String {
+    let organized_vec = organize_vec(source);
     let mut decoded_string = String::new();
-    let mut decode_iter = source.chars().enumerate();
-    while let Some((i, current_char)) = decode_iter.next() {
-        if let Some(count) = current_char.to_digit(10) {
-            for _ in 0..count {
-                decoded_string.push(source.chars().nth(i+1).unwrap());
+    for entry in organized_vec.iter() {
+        if entry.len() > 1 {
+            if let Ok(count) = entry[..(entry.len()-1)].parse() {
+                for _ in 0..count {
+                    decoded_string.push_str(&entry[entry.len()-1..]);
+                }
             }
-            decode_iter.next();
         } else {
-            decoded_string.push(current_char);
+            decoded_string.push_str(&entry[..entry.len()]);
         }
     }
     decoded_string
+}
+
+pub fn organize_vec(source: &str) -> Vec<String> {
+    let mut iter = source.chars();
+    let mut result = vec![];
+    let mut count = 1;
+    result.push("".to_string());
+    while let Some(current_char) = iter.next() {
+        let index = result.len()-1;
+        if current_char.is_ascii_digit() {
+            count += 1;
+        } else {
+            count = 1;
+        }
+        result[index].push(current_char);
+        if count == 1 {result.push("".to_string());}
+    }
+    result
 }

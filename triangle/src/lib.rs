@@ -1,14 +1,18 @@
-pub struct Triangle {
-    sides: [u64; 3], 
+use std::ops::Add;
+
+pub struct Triangle<T> {
+    sides: [T; 3],
 }
 
-impl Triangle {
-    pub fn build(sides: [u64; 3]) -> Option<Triangle> {
-        if sides.iter().all(|&x| x>0 ) && sides[0]+sides[1] >= sides[2] && sides[1]+sides[2] >= sides[0]{
-            return Some(Triangle{sides});
-        } else {
+impl<T> Triangle<T>
+where
+    T: Default + Copy + PartialEq + PartialOrd + Add<Output = T>,
+{
+    pub fn build(sides: [T; 3]) -> Option<Triangle<T>> {
+        if sides.iter().any(|&x| x == T::default()) || sides[0] + sides[1] < sides[2] || sides[1] + sides[2] < sides[0] {
             return None;
         }
+        Some(Triangle { sides })
     }
 
     pub fn is_equilateral(&self) -> bool {

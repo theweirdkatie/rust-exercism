@@ -14,12 +14,15 @@ pub fn convert(input: &str) -> Result<String, Error> {
     check_valid(vec_input.clone())?;
 
     let mut result = String::new();
-    for col in 0..vec_input[0].len()/3 {
-        for mul_line in 0..vec_input.len()/4 {
+    for mul_line in 0..vec_input.len() / 4 {
+        if mul_line > 0 {
+            result = result + ",";
+        }
+        for col in 0..vec_input[0].len() / 3 {
             let mut temp: Vec<&str> = vec![];
-            for row in mul_line*4..(mul_line*4)+4 {
-                println!("{row}/{}", (mul_line*4)+4);
-                temp.push(&vec_input[row][col*3..(col*3)+3]);
+            for row in mul_line * 4..(mul_line * 4) + 4 {
+                println!("{row}/{}", (mul_line * 4) + 4);
+                temp.push(&vec_input[row][col * 3..(col * 3) + 3]);
             }
             result = result + &get_num(temp);
         }
@@ -31,7 +34,7 @@ pub fn convert(input: &str) -> Result<String, Error> {
 
 pub fn check_valid(input: Vec<&str>) -> Result<(), Error> {
     let row_count = input.len();
-    let col_count = input.iter().map(|x| x.len()).sum::<usize>()/4;
+    let col_count = input.iter().map(|x| x.len()).sum::<usize>() / 4;
     if row_count % 4 != 0 {
         return Err(Error::InvalidRowCount(row_count));
     } else if col_count % 3 != 0 {
@@ -41,7 +44,9 @@ pub fn check_valid(input: Vec<&str>) -> Result<(), Error> {
 }
 
 pub fn has_invalid_chars(input: Vec<&str>) -> bool {
-    input.iter().any(|&x| !["| |", "   ", "  |", " _ ", "|_ ", " _|", "|_|"].contains(&x))
+    input
+        .iter()
+        .any(|&x| !["| |", "   ", "  |", " _ ", "|_ ", " _|", "|_|"].contains(&x))
 }
 
 pub fn get_num(number: Vec<&str>) -> String {
@@ -49,44 +54,36 @@ pub fn get_num(number: Vec<&str>) -> String {
     for (i, row) in number.iter().enumerate() {
         println!("match {row} at {i}");
         match i {
-            0 => {
-                match *row {
-                    "   " => possible_numbers.retain(|x| [1,4].contains(x)),
-                    " _ " => possible_numbers.retain(|x| ![1,4].contains(x)),
-                    _ => return "?".to_string(),
-                }
-            }
-            1 => {
-                match *row {
-                    "  |" => possible_numbers.retain(|x| [1,7].contains(x)),
-                    " _|" => possible_numbers.retain(|x| [2,3].contains(x)),
-                    "|_|" => possible_numbers.retain(|x| [4,8,9].contains(x)),
-                    "|_ " => possible_numbers.retain(|x| [5,6].contains(x)),
-                    "| |" => {
-                        if !possible_numbers.contains(&0) || number[2] != "|_|" {
-                            return "?".to_string();
-                        } else {
-                            return "0".to_string();
-                        }
+            0 => match *row {
+                "   " => possible_numbers.retain(|x| [1, 4].contains(x)),
+                " _ " => possible_numbers.retain(|x| ![1, 4].contains(x)),
+                _ => return "?".to_string(),
+            },
+            1 => match *row {
+                "  |" => possible_numbers.retain(|x| [1, 7].contains(x)),
+                " _|" => possible_numbers.retain(|x| [2, 3].contains(x)),
+                "|_|" => possible_numbers.retain(|x| [4, 8, 9].contains(x)),
+                "|_ " => possible_numbers.retain(|x| [5, 6].contains(x)),
+                "| |" => {
+                    if !possible_numbers.contains(&0) || number[2] != "|_|" {
+                        return "?".to_string();
+                    } else {
+                        return "0".to_string();
                     }
-                    _ => return "?".to_string(),
                 }
-            }
-            2 => {
-                match *row {
-                    "  |" => possible_numbers.retain(|x| [1,4,7].contains(x)),
-                    " _|" => possible_numbers.retain(|x| [3,5,9].contains(x)),
-                    "|_|" => possible_numbers.retain(|x| [8,6,0].contains(x)),
-                    "|_ " => possible_numbers.retain(|&x| x==2),
-                    _ => return "?".to_string(),
-                }
-            }
-            _ => {
-                match *row {
-                    "   " => {},
-                    _ => return "?".to_string(),
-                }
-            }
+                _ => return "?".to_string(),
+            },
+            2 => match *row {
+                "  |" => possible_numbers.retain(|x| [1, 4, 7].contains(x)),
+                " _|" => possible_numbers.retain(|x| [3, 5, 9].contains(x)),
+                "|_|" => possible_numbers.retain(|x| [8, 6, 0].contains(x)),
+                "|_ " => possible_numbers.retain(|&x| x == 2),
+                _ => return "?".to_string(),
+            },
+            _ => match *row {
+                "   " => {}
+                _ => return "?".to_string(),
+            },
         }
     }
     dbg!(&possible_numbers);

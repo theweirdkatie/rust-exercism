@@ -154,7 +154,6 @@ fn recognizes_110101100() {
 }
 
 #[test]
-#[ignore]
 fn replaces_only_garbled_numbers_with_question_mark() {
     #[rustfmt::skip]
     let input = "       _     _           _ \n".to_string() +
@@ -166,7 +165,6 @@ fn replaces_only_garbled_numbers_with_question_mark() {
 }
 
 #[test]
-#[ignore]
 fn recognizes_string_of_decimal_numbers() {
     #[rustfmt::skip]
     let input = "    _  _     _  _  _  _  _  _ \n".to_string() +
@@ -178,7 +176,6 @@ fn recognizes_string_of_decimal_numbers() {
 }
 
 #[test]
-#[ignore]
 fn numbers_across_multiple_lines_are_joined_by_commas() {
     #[rustfmt::skip]
     let input = "    _  _ \n".to_string() +

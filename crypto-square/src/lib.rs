@@ -1,33 +1,20 @@
 pub fn encrypt(input: &str) -> String {
-    if input.len() < 1 {
-        return "".to_string();
+    if input.is_empty() {
+        return String::new();
     }
     let normalized = input
         .to_ascii_lowercase()
         .chars()
         .filter(|ch| ch.is_alphanumeric())
-        .map(|ch| ch.to_string())
-        .collect::<Vec<String>>();
+        .collect::<Vec<_>>();
     let cols = (normalized.len() as f64).sqrt().ceil() as usize;
-    let square = normalized
-        .chunks(cols)
-        .map(|slice| {
-            let mut stri = slice.join("");
-            while stri.len() < cols {
-                stri.push(' ');
-            }
-            stri
+    let rows = (normalized.len() as f64).sqrt().floor() as usize;
+    (0..cols)
+        .map(|i| {
+            (0..rows)
+                .map(|j| normalized.get(i + j * cols).unwrap_or(&' '))
+                .collect::<String>()
         })
-        .collect::<Vec<String>>();
-    let mut result = vec![];
-    for row in 0..square.len() {
-        for (i, char) in square[row].char_indices() {
-            if row == 0 {
-                result.push(char.to_string());
-            } else {
-                result[i].push(char);
-            }
-        }
-    }
-    result.join(" ")
+        .collect::<Vec<_>>()
+        .join(" ")
 }

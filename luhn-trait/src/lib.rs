@@ -1,7 +1,5 @@
 pub trait Luhn {
     fn valid_luhn(&self) -> bool;
-    fn sum_nums(nums: Vec<char>) -> u32;
-    fn double_second(nums: Vec<char>) -> Vec<char>;
 }
 
 /// Here is the example of how to implement custom Luhn trait
@@ -11,25 +9,22 @@ pub trait Luhn {
 /// Perhaps there exists a better solution for this problem?
 impl<T: ToString> Luhn for T {
     fn valid_luhn(&self) -> bool {
-        let some_string = self.to_string();
-        if some_string.len() <= 1 || some_string.chars().any(|x| !x.is_ascii_digit() && !x.is_ascii_whitespace()) {
+        let luhn = self.to_string();
+        if luhn.len() <= 1 || luhn.chars().any(|x| !x.is_ascii_digit() && !x.is_ascii_whitespace()) {
             false
         } else {
-            Self::sum_nums(some_string.chars().filter( |x| !x.is_ascii_whitespace() ).collect()) % 10 == 0
+            let sum_nums: u32 = luhn
+                .chars()
+                .rev()
+                .filter_map(|ch| ch.to_digit(10))
+                .enumerate()
+                .map(|(i, n)| match i % 2 {
+                    0 => n,
+                    _ if n == 9 => n,
+                    _ => (n * 2) % 9,
+                })
+                .sum();
+                sum_nums % 10 == 0
         }
-    }
-    fn sum_nums(nums: Vec<char>) -> u32 {
-        Self::double_second(nums).iter().map(|x| x.to_digit(10).unwrap_or_default()).sum::<u32>()
-    }
-    fn double_second(number: Vec<char>) -> Vec<char> {
-        number.iter().rev().enumerate().map(|(i, &en)|{
-            if i % 2 != 0 {
-                let mut new_entry = en.to_digit(10).unwrap_or_default() * 2;
-                if new_entry > 9 { new_entry -= 9 } else {}; // reduce overflow
-                char::from_digit(new_entry, 10).unwrap_or_default()
-            } else {
-                en
-            }
-        }).collect::<Vec<char>>()
     }
 }

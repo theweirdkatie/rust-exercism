@@ -1,34 +1,61 @@
 use anyhow::Error;
+use std::{fs, str::from_utf8};
 
-/// While using `&[&str]` to handle flags is convenient for exercise purposes,
-/// and resembles the output of [`std::env::args`], in real-world projects it is
-/// both more convenient and more idiomatic to contain runtime configuration in
-/// a dedicated struct. Therefore, we suggest that you do so in this exercise.
-///
-/// In the real world, it's common to use crates such as [`clap`] or
-/// [`structopt`] to handle argument parsing, and of course doing so is
-/// permitted in this exercise as well, though it may be somewhat overkill.
-///
-/// [`clap`]: https://crates.io/crates/clap
-/// [`std::env::args`]: https://doc.rust-lang.org/std/env/fn.args.html
-/// [`structopt`]: https://crates.io/crates/structopt
 #[derive(Debug)]
-pub struct Flags;
+pub struct Flags {
+    line_nums: bool,
+    file_names: bool,
+    match_lines: bool,
+    case_ins: bool,
+    invert: bool,
+}
 
 impl Flags {
     pub fn new(flags: &[&str]) -> Self {
-        unimplemented!(
-            "Given the flags {:?} implement your own 'Flags' struct to handle flags-related logic",
-            flags
-        );
+        Self {
+            line_nums: flags.contains(&"-n"),
+            file_names: flags.contains(&"-l"),
+            match_lines: flags.contains(&"-x"),
+            case_ins: flags.contains(&"-i"),
+            invert: flags.contains(&"-v"),
+        }
     }
 }
 
 pub fn grep(pattern: &str, flags: &Flags, files: &[&str]) -> Result<Vec<String>, Error> {
-    unimplemented!(
-        "Search the files '{:?}' for '{}' pattern and save the matches in a vector. Your search logic should be aware of the given flags '{:?}'",
-        files,
-        pattern,
-        flags
-    );
+    let mut result: Vec<String> = vec![];
+    let multiple_files = files.len() > 1;
+    for file in files {
+        let contents = fs::read(file)?;
+        let mut lines = from_utf8(&contents)?
+            .lines()
+            .enumerate()
+            .filter(
+                |(_, line)| flags.invert ^ match (flags.match_lines, flags.case_ins) {
+                    (true, false) => line == &pattern,
+                    (true, true) => line.to_lowercase() == pattern.to_lowercase(),
+                    (false, false) => line.contains(&pattern),
+                    (false, true) => line.to_lowercase().contains(&pattern.to_lowercase()),
+                }
+            )
+            .map(|(i, line)| {
+                format!("{}{}{line}", {
+                    if multiple_files {
+                        format!("{}:", file.to_string())
+                    } else { "".to_string() }
+                },{
+                    if flags.line_nums {
+                        format!("{}:", i + 1)
+                    } else { "".to_string() }
+                })
+            })
+            .collect::<Vec<String>>();
+
+        if flags.file_names && lines.len() > 0 {
+            result.push(file.to_string());
+        } else {
+            result.append(&mut lines);
+        }
+    }
+    Ok(result)
 }

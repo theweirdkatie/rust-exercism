@@ -176,23 +176,24 @@ impl Sub for Decimal {
         } else {
             (lhs_norm, rhs_norm) = Decimal::normalize(rhs.clone(), self.clone());
         }
-        let mut remainder = 0;
-        let digits = lhs_norm.digits.iter()
+        
+        let mut carry = 0;
+        let mut digits: Vec<u8> = lhs_norm.digits.iter()
             .zip(rhs_norm.digits.iter())
             .rev()
             .map(|(&s, &o)| {
-                let diff: u8 = (s as i8 - o as i8 - remainder as i8).abs().try_into().unwrap_or(0);
-                if diff >= 10 {
-                    let result = diff % 10;
-                    remainder = (diff - result)/10;
+                let diff: i8 = s as i8 - o as i8 - carry as i8;
+                if diff < 0 {
+                    let result = (s+10) - o - carry;
+                    carry = 1;
                     return result;
                 } else {
-                    remainder = 0;
-                    return diff;
+                    carry = 0;
+                    return diff as u8;
                 }
             })
-            .rev()
             .collect();
+        digits.reverse();
 
         let sign = match self.partial_cmp(&rhs) {
             Some(Ordering::Less) => !self.sign,

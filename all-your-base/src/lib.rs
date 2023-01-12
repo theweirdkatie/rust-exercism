@@ -30,7 +30,6 @@ pub fn convert(number: &[u32], _from_base: u32, to_base: u32) -> Result<Vec<u32>
             base_10_num /= to_base;
             if base_10_num == 0 {
                 break;
-            } else {
             };
         }
         Ok(result)

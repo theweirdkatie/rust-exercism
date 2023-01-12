@@ -17,7 +17,7 @@ impl HighScores {
     }
 
     pub fn personal_best(&self) -> Option<u32> {
-        self.scores.iter().max().cloned()
+        self.scores.clone().into_iter().max()
     }
 
     pub fn personal_top_three(&self) -> Vec<u32> {

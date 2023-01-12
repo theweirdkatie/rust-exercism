@@ -26,8 +26,7 @@ pub fn frequency(input: &[&str], _worker_count: usize) -> HashMap<char, usize> {
             let mut map = clone_arc_map.lock().unwrap();
             for c in string.chars() {
                 if c.is_alphabetic() {
-                    let count = map.entry(c.to_ascii_lowercase()).or_insert(0);
-                    *count += 1;
+                    *map.entry(c.to_ascii_lowercase()).or_insert(0) += 1;
                 }
             }
         });

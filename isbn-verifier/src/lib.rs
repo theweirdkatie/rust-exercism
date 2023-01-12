@@ -17,4 +17,3 @@ pub fn is_valid_isbn(isbn: &str) -> bool {
                     }) % 11 == 0
                     && valid_characters.len() == 10
 }
-//
